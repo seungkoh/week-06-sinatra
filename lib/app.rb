@@ -13,7 +13,12 @@ class TwitterInfo < Sinatra::Application
   get '/user/:username' do
 
     @user = params[:username]
-    user_id = Twitter.user(@user).id
+    begin
+      user_id = Twitter.user(@user).id
+    rescue Twitter::NotFound
+      halt 404
+    end
+    
     followers = Twitter.follower_ids(user_id).ids
     @num_followers = followers.length
 
@@ -23,6 +28,10 @@ class TwitterInfo < Sinatra::Application
 
   post // do
     halt 500, 'Whoa. Sorry. No POSTs allowed.'
+  end
+  
+  not_found do
+    haml :'404'
   end
 
 end
